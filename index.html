@@ -7,107 +7,155 @@
     body {
       height: 100vh;
       margin: 0;
-      font-family: "Comic Sans MS", cursive, sans-serif;
+      font-family: "Palatino", cursive, sans-serif;
       background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .card {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      text-align: center;
+      position: relative; 
+      width: 500px;
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    h1 { color: #ff4d6d; margin: 10px 0; }
+    
+    #image-container {
+      height: 500px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .card {
-      background: white;
-      padding: 40px 60px;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-      text-align: center;
-      position: relative;
-    }
-
-    h1 {
-      margin-bottom: 30px;
-      color: #ff4d6d;
-    }
-
-    .buttons {
-      position: relative;
-      height: 120px;
-    }
-
     button {
       padding: 15px 30px;
       font-size: 18px;
+      font-family: "Palatino", cursive, sans-serif;
       border: none;
       border-radius: 12px;
       cursor: pointer;
-      position: absolute;
-      transition: transform 0.2s ease;
+    }
+
+    .btn-wrapper {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 50px;
     }
 
     #yes {
       background: #ff4d6d;
       color: white;
-      left: 50%;
-      transform: translateX(-50%) scale(1);
-    }
-
-    #yes:hover {
-      transform: translateX(-50%) scale(1.15);
+      position: relative;
+      z-index: 10;
+      transition: transform 0.1s ease;
     }
 
     #no {
       background: #ddd;
       color: #333;
-      left: 20%;
-      top: 60px;
+      position: relative; 
+      z-index: 100;
     }
+
+    img { border-radius: 20px; max-height: 100%; }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Will you be my Valentine? 💖</h1>
-    <div class="buttons">
-      <button id="yes">Yes 💘</button>
-      <button id="no">No 😢</button>
+
+  <div class="card" id="card">
+    <div id="image-container">
+      <img id="main-pic" src="https://media.tenor.com/ns27oDL6PPIAAAAM/cats-cat-with-flower.gif" width="500px" />
+    </div>
+
+    <h1>Will you be my Valentine? &lt;3</h1>
+    <p id="message" style="color: #b22222; height: 20px;"></p>
+
+    <div class="btn-wrapper" id="wrapper">
+      <button id="yes">Yes :D</button>
+      <button id="no">No :(</button>
     </div>
   </div>
 
-  <script>
+  <script> 
     const noBtn = document.getElementById("no");
-    const card = document.querySelector(".card");
+    const yesBtn = document.getElementById("yes");
+    const card = document.getElementById("card");
+    const message = document.getElementById("message");
+    const mainPic = document.getElementById("main-pic");
 
+    let noAvoiding = false;
+    let yesScale = 1;
+
+    // First click on NO
+    noBtn.addEventListener("click", () => {
+      noAvoiding = true;
+      message.textContent = "Try again! Bitch...";
+      mainPic.src = "https://media.tenor.com/IHyecOwvZKAAAAAM/cat-meme-cat-with-gun.gif";
+      noBtn.textContent = "No :(";
+    });
+
+    // Hover/Move logic
     document.addEventListener("mousemove", (e) => {
+      if (!noAvoiding) return;
+
       const btnRect = noBtn.getBoundingClientRect();
-      const distance = Math.hypot(
-        e.clientX - (btnRect.left + btnRect.width / 2),
-        e.clientY - (btnRect.top + btnRect.height / 2)
-      );
+      const wrapRect = wrapper.getBoundingClientRect(); // Calculate relative to wrapper
 
-      if (distance < 100) {
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+
+      const btnCenterX = btnRect.left + btnRect.width / 2;
+      const btnCenterY = btnRect.top + btnRect.height / 2;
+
+      const distance = Math.hypot(mouseX - btnCenterX, mouseY - btnCenterY);
+
+      if (distance < 80) {
+        noBtn.style.position = "absolute";
+
+        // Calculate random position strictly INSIDE the card boundaries
         const cardRect = card.getBoundingClientRect();
+        
+        const maxX = cardRect.width - btnRect.width;
+        const maxY = cardRect.height - btnRect.height;
 
-        const x = Math.random() * (cardRect.width - btnRect.width);
-        const y = Math.random() * (cardRect.height - btnRect.height - 60) + 60;
+        // Ensure the button stays within the white box
+        const newX = Math.max(10, Math.random() * maxX);
+        const newY = Math.max(10, Math.random() * maxY);
 
-        noBtn.style.left = `${x}px`;
-        noBtn.style.top = `${y}px`;
+        noBtn.style.left = `${newX}px`;
+        noBtn.style.top = `${newY}px`;
+        noBtn.style.bottom = 'auto'; // Remove the initial bottom setting
+
+        noBtn.style.bottom = 'auto';
+        noBtn.style.margin = '0';
+
+        // Grow the Yes button
+        yesScale += 0.1;
+        yesBtn.style.transform = `scale(${yesScale})`;
       }
     });
 
-    document.getElementById("yes").addEventListener("click", () => {
-      document.body.innerHTML = `
-        <div style="
-          height:100vh;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          font-family:Comic Sans MS;
-          background:linear-gradient(135deg,#ff9a9e,#fad0c4);
-          color:white;
-          font-size:40px;
-          text-align:center;
-        ">
-          YAY!!! 💕🥰<br>
-          Best Valentine ever 💘
+    // Click YES
+    yesBtn.addEventListener("click", () => {
+      card.innerHTML = `
+        <div style="padding: 50px;" align="center">
+          <h1>YAY!!! <3<3<3 </h1>
+          <img src="https://media.tenor.com/gU_rh68lInAAAAAi/cat-sticker-dancing-cat.gif">
         </div>
       `;
     });
